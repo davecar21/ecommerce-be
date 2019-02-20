@@ -31,7 +31,7 @@ var schema = new mongoose.Schema({
 });
 var Tank = mongoose.model('Tank', schema);
 
-app.get('/', (req, res) => res.send('Hello World!'));
+app.get('/', (req, res) => res.send({data: 'Hello World!'}));
 
 app.post('/', (req, res) => {
     var data = new Tank(req.body); 
