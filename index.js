@@ -1,46 +1,34 @@
 const express = require('express');
-var cors = require('cors');
+const cors = require('cors');
+var morgan = require('morgan')
 const app = express();
+
 app.use(cors())
+app.use(express.json());
+app.use(morgan('tiny'));
 
-const port = process.env.PORT || 3000;
-const mongoose = require('mongoose');
+// Config
+const db = require('./config/db');
+const config = require('./config/config');
 
-var bodyParser = require('body-parser');
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({
-    extended: true
-})); // for parsing application/x-www-form-urlencoded
+// Routes
+const userRoute = require('./routes/userRoute');
 
+// Error Handler
+const routeErrorHandler = require('./utils/errorHandler/routeErrorHandler');
 
-
-mongoose.connect('mongodb://tester1:tester1@ds057862.mlab.com:57862/ecommerce-db', {
-        useNewUrlParser: true
+// Middleware
+app.get('/', (req, res) => {
+    res.status(200).send({
+        message: 'Ecommerce API!'
     })
-    .then(() => {
-        console.log('db connection SUCCESS')
-    })
-    .catch((error) => {
-        console.log('db connection FAILED')
-    });
-
-
-var schema = new mongoose.Schema({
-    name: 'string',
-    size: 'string'
-});
-var Tank = mongoose.model('Tank', schema);
-
-app.get('/', (req, res) => res.send({message: 'Hello World!'}));
-
-app.post('/', (req, res) => {
-    var data = new Tank(req.body); 
-    data.save(function (err) {
-        if (err) {
-            return handleError(err)
-        };
-        res.send({message:'SAVED!'})
-    });
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+app.use('/user', userRoute);
+
+// Error Handling
+app.use(routeErrorHandler);
+
+
+
+app.listen(config.port, () => console.log(`Example app listening on port ${config.port}!`));
