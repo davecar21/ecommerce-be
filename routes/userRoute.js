@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../utils/middleware/auth');
+const admin = require('../utils/middleware/admin');
 
 const UserModel = require('../model/userModel');
 var _ = require('lodash');
@@ -49,7 +51,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.put('/', async (req, res) => {
+router.put('/', [auth, admin], async (req, res) => {
     try {
         const result = await UserModel.putUser(req.body);
         

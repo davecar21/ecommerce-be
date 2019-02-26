@@ -1,5 +1,3 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const mongoose = require('../config/db');
 const config = require('../config/config');
 const Schema = mongoose.Schema;
@@ -10,25 +8,27 @@ let UserMethod = {}
 
 let userSchema = new mongoose.Schema({
     _id: Schema.Types.ObjectId,
-    username: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
+    productName: {
         type: String,
         required: true
     },
-    email: {
+    productDescription: {
+        type: String,
+        required: true
+    },
+    productPrice: {
+        type: Number,
+        required: true
+    },
+    productQuantity: {
+        type: Number,
+        required: true
+    },
+    productStatus: {
         type: String,
         required: true,
-        unique: true
-    },
-    userType: {
-        type: String,
-        required: [true, 'userType is required.'],
-        enum: ['admin', 'moderator', 'customer', 'seller'],
-        default: 'customer'
+        enum: ['available', 'outOfStock'],
+        default: 'available'
     }
 });
 
@@ -65,26 +65,6 @@ UserMethod.putUser = async (user) => {
     return result;
 }
 
-UserMethod.auth = async (user) => {
-
-    const authUser = await User.findOne({
-        username: user.username
-    });
-    if (!authUser) throw new Error('Auth failed!');;
-
-    const compPassword = await bcrypt.compare(user.password, authUser.password);
-    if (compPassword) {
-        const payload = _.pick(authUser, ['username', 'userType', 'email']);
-        const token = await jwt.sign(payload, config.secret, {
-            expiresIn: 86400 // expires in 24 hours
-        });
-        return token;
-    } else {
-        throw new Error('Auth failed!');
-    }
-
-
-}
 
 
 UserMethod.User = User;
