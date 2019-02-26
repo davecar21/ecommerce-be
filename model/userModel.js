@@ -54,11 +54,13 @@ UserMethod.postUser = async (user) => {
 }
 
 UserMethod.putUser = async (user) => {
+    user.password = await bcrypt.hash(user.password, config.saltRounds);
     const result = await User.findOneAndUpdate({
-        _id: user._id
-    }, user, {
-        new: true
-    });
+            _id: user._id
+        },
+        user, {
+            new: true
+        });
     return result;
 }
 
@@ -76,7 +78,7 @@ UserMethod.auth = async (user) => {
             expiresIn: 86400 // expires in 24 hours
         });
         return token;
-    }else{
+    } else {
         throw new Error('Auth failed!');
     }
 
