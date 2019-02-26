@@ -8,10 +8,10 @@ router.get('/', async (req, res) => {
     try {
         const result = await UserModel.getUser();
         return res.status(200).send(result);
-    } catch (err) {
+    } catch (error) {
         return res.status(400).send({
             response: 'FAILED',
-            message: err
+            message: error
         });
     }
 });
@@ -20,10 +20,10 @@ router.get('/:id', async (req, res) => {
     try {
         const result = await UserModel.findUser(req.params.id);
         return res.status(200).send(result);
-    } catch (err) {
+    } catch (error) {
         return res.status(400).send({
             response: 'FAILED',
-            message: err
+            message: error
         });
     }
 });
@@ -37,16 +37,14 @@ router.post('/', async (req, res) => {
                 username: result.username
             }
         });
-    } catch (err) {
+    } catch (error) {
         let errorMsg = '';
-        _.forEach(err.errors, function (value, key) {
+        _.forEach(error.errors, function (value, key) {
             errorMsg = value.message
         });
-
-
         return res.status(400).send({
             response: 'FAILED',
-            message: err
+            message: error
         });
     }
 });
@@ -61,10 +59,10 @@ router.put('/', async (req, res) => {
                 username: result
             }
         });
-    } catch (err) {
+    } catch (error) {
         return res.status(400).send({
             response: 'FAILED',
-            message: err
+            message: error
         });
     }
 });
@@ -73,10 +71,10 @@ router.post('/auth', async (req, res) => {
     try {
         const result = await UserModel.auth(req.body);
         return res.status(200).send(result);
-    } catch (err) {
-        return res.status(400).send({
+    } catch (error) {
+        return res.status(401).send({
             response: 'FAILED',
-            message: err
+            message: error.message
         });
     }
 });

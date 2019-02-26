@@ -1,7 +1,9 @@
-var jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const mongoose = require('../config/db');
+const config = require('../config/config');
 const Schema = mongoose.Schema;
-var _ = require('lodash');
+const _ = require('lodash');
 
 
 let UserMethod = {}
@@ -45,14 +47,13 @@ UserMethod.findUser = async (userId) => {
 
 UserMethod.postUser = async (user) => {
     user._id = new mongoose.Types.ObjectId();
+    user.password = await bcrypt.hash(user.password, config.saltRounds);
     const userData = new User(user);
     const result = await userData.save();
     return result;
 }
 
 UserMethod.putUser = async (user) => {
-    1
-    console.log('[model]', user)
     const result = await User.findOneAndUpdate({
         _id: user._id
     }, user, {
@@ -63,19 +64,23 @@ UserMethod.putUser = async (user) => {
 
 UserMethod.auth = async (user) => {
 
-    const result = await User.findOne({
+    const authUser = await User.findOne({
         username: user.username
     });
-    if (result.username == user.username && result.password == user.password) {
-        var payload = _.pick(result, ['username', 'password', 'userType', 'email']);
-        // jwt.sign(payload, 'addjsonwebtokensecretherelikeQuiscustodietipsoscustodes', { algorithm: 'RS256'}, function (err, token) {
-        //     console.log('token', token);
-        //     console.log('error', err)
-        // });
-        return result + user;
-    } else {
-        throw 'Auth failed'
+    if (!authUser) throw new Error('Auth failed!');;
+
+    const compPassword = await bcrypt.compare(user.password, authUser.password);
+    if (compPassword) {
+        const payload = _.pick(authUser, ['username', 'userType', 'email']);
+        const token = jwt.sign(payload, config.secret, {
+            expiresIn: 86400 // expires in 24 hours
+        });
+        return token;
+    }else{
+        throw new Error('Auth failed!');
     }
+
+
 }
 
 
