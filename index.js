@@ -12,19 +12,27 @@ const db = require('./config/db');
 const config = require('./config/config');
 
 // Routes
+const authRoute = require('./routes/authRoute');
 const userRoute = require('./routes/userRoute');
+const productRoute = require('./routes/productRoute');
 
 // Error Handler
 const routeErrorHandler = require('./utils/errorHandler/routeErrorHandler');
 
 // Middleware
+const auth = require('./utils/middleware/auth');
+
+
+//Routes
 app.get('/', (req, res) => {
     res.status(200).send({
         message: 'Ecommerce API!'
     })
 });
 
-app.use('/user', userRoute);
+app.use('/auth', authRoute);
+app.use('/user', auth, userRoute);
+app.use('/product', auth, productRoute);
 
 // Error Handling
 app.use(routeErrorHandler);

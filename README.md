@@ -47,3 +47,11 @@ userSchema
 - email
 - userType ['admin', 'moderator', 'customer', 'seller']
 ```
+
+
+
+## TODO
+
+Business Requirements
+
+ERD

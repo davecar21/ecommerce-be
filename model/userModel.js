@@ -60,7 +60,8 @@ UserMethod.putUser = async (user) => {
             _id: user._id
         },
         user, {
-            new: true
+            new: true,
+            runValidators: true
         });
     return result;
 }
@@ -74,7 +75,7 @@ UserMethod.auth = async (user) => {
 
     const compPassword = await bcrypt.compare(user.password, authUser.password);
     if (compPassword) {
-        const payload = _.pick(authUser, ['username', 'userType', 'email']);
+        const payload = _.pick(authUser, ['_id', 'username', 'userType', 'email']);
         const token = await jwt.sign(payload, config.secret, {
             expiresIn: 86400 // expires in 24 hours
         });

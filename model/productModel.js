@@ -3,11 +3,11 @@ const config = require('../config/config');
 const Schema = mongoose.Schema;
 const _ = require('lodash');
 
+let ProductMethod = {}
 
-let UserMethod = {}
-
-let userSchema = new mongoose.Schema({
+let productSchema = new mongoose.Schema({
     _id: Schema.Types.ObjectId,
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     productName: {
         type: String,
         required: true
@@ -27,45 +27,48 @@ let userSchema = new mongoose.Schema({
     productStatus: {
         type: String,
         required: true,
-        enum: ['available', 'outOfStock'],
+        enum: ['available', 'outOfStock', 'notAvailable'],
         default: 'available'
     }
 });
 
-let User = mongoose.model('User', userSchema);
+let Product = mongoose.model('Product', productSchema);
 
-UserMethod.getUser = async () => {
-    const result = await User.find();
+ProductMethod.getProduct = async () => {
+    const result = await Product.find().populate('userId');
     return result;
 }
 
-UserMethod.findUser = async (userId) => {
-    const result = await User.find({
-        _id: userId
+ProductMethod.findProduct = async (productId) => {
+    const result = await Product.find({
+        _id: productId
     });
     return result;
 }
 
-UserMethod.postUser = async (user) => {
-    user._id = new mongoose.Types.ObjectId();
-    user.password = await bcrypt.hash(user.password, config.saltRounds);
-    const userData = new User(user);
-    const result = await userData.save();
+ProductMethod.postProduct = async (product) => {
+    product._id = new mongoose.Types.ObjectId();
+    const productData = new Product(product);
+    const result = await productData.save();
     return result;
 }
 
-UserMethod.putUser = async (user) => {
-    user.password = await bcrypt.hash(user.password, config.saltRounds);
-    const result = await User.findOneAndUpdate({
-            _id: user._id
+ProductMethod.putProduct = async (product) => {
+    const result = await Product.findOneAndUpdate({
+            _id: product._id
         },
-        user, {
-            new: true
+        product, {
+            new: true,
+            runValidators: true
         });
     return result;
 }
 
+ProductMethod.deleteProduct = async (productId) => {
+    const result = await Product.findByIdAndDelete(productId);
+    return result;
+}
 
 
-UserMethod.User = User;
-module.exports = UserMethod;
+ProductMethod.Product = Product;
+module.exports = ProductMethod;

@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../utils/middleware/auth');
-const authAdmin = require('../utils/middleware/authAdmin');
+const jwt = require('jsonwebtoken');
+const config = require('../config/config');
 
-const UserModel = require('../model/userModel');
+const authSeller = require('../utils/middleware/authSeller');
+
+const ProductModel = require('../model/productModel');
 var _ = require('lodash');
 
 router.get('/', async (req, res) => {
     try {
-        const result = await UserModel.getUser();
+        const result = await ProductModel.getProduct();
         return res.status(200).send(result);
     } catch (error) {
         return res.status(400).send({
@@ -20,7 +22,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        const result = await UserModel.findUser(req.params.id);
+        const result = await ProductModel.findProduct(req.params.id);
         return res.status(200).send(result);
     } catch (error) {
         return res.status(400).send({
@@ -30,17 +32,18 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', authSeller, async (req, res) => {
     try {
-        const result = await UserModel.postUser(req.body);
+        req.body.userId = res.locals.token._id;
+        const result = await ProductModel.postProduct(req.body);
         return res.status(200).send({
             response: 'SUCCESS',
             message: {
-                username: result.username
+                result
             }
         });
     } catch (error) {
-        let errorMsg=[];
+        let errorMsg = [];
         _.forEach(error.errors, function (value, key) {
             errorMsg.push(value.message);
         });
@@ -51,14 +54,30 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.put('/', authAdmin, async (req, res) => {
+router.put('/', authSeller, async (req, res) => {
     try {
-        const result = await UserModel.putUser(req.body);
-        
+        const result = await ProductModel.putProduct(req.body);
         return res.status(200).send({
             response: 'SUCCESS',
             message: {
-                username: result
+                result
+            }
+        });
+    } catch (error) {
+        return res.status(400).send({
+            response: 'FAILED',
+            message: error
+        });
+    }
+});
+
+router.delete('/', authSeller, async (req, res) => {
+    try {
+        const result = await ProductModel.deleteProduct(req.body._id);
+        return res.status(200).send({
+            response: 'SUCCESS',
+            message: {
+                result
             }
         });
     } catch (error) {
