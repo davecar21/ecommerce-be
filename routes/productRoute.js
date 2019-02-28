@@ -3,8 +3,6 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
 
-const authSeller = require('../utils/middleware/authSeller');
-
 const ProductModel = require('../model/productModel');
 var _ = require('lodash');
 
@@ -32,7 +30,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.post('/', authSeller, async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         req.body.userId = res.locals.token._id;
         const result = await ProductModel.postProduct(req.body);
@@ -54,7 +52,7 @@ router.post('/', authSeller, async (req, res) => {
     }
 });
 
-router.put('/', authSeller, async (req, res) => {
+router.put('/', async (req, res) => {
     try {
         const result = await ProductModel.putProduct(req.body);
         return res.status(200).send({
@@ -71,7 +69,7 @@ router.put('/', authSeller, async (req, res) => {
     }
 });
 
-router.delete('/', authSeller, async (req, res) => {
+router.delete('/', async (req, res) => {
     try {
         const result = await ProductModel.deleteProduct(req.body._id);
         return res.status(200).send({

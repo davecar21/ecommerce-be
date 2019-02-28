@@ -27,9 +27,11 @@ let userSchema = new mongoose.Schema({
     userType: {
         type: String,
         required: [true, 'userType is required.'],
-        enum: ['admin', 'moderator', 'customer', 'seller'],
-        default: 'customer'
-    }
+        enum: ['admin', 'moderator', 'user'],
+        default: 'user'
+    },
+}, {
+    timestamps: true
 });
 
 let User = mongoose.model('User', userSchema);
@@ -55,7 +57,10 @@ UserMethod.postUser = async (user) => {
 }
 
 UserMethod.putUser = async (user) => {
-    user.password = await bcrypt.hash(user.password, config.saltRounds);
+    if(user.password){
+        user.password = await bcrypt.hash(user.password, config.saltRounds);
+    }
+    
     const result = await User.findOneAndUpdate({
             _id: user._id
         },
@@ -77,7 +82,7 @@ UserMethod.auth = async (user) => {
     if (compPassword) {
         const payload = _.pick(authUser, ['_id', 'username', 'userType', 'email']);
         const token = await jwt.sign(payload, config.secret, {
-            expiresIn: 86400 // expires in 24 hours
+            expiresIn: 21600 // expires in 6 hours
         });
         return token;
     } else {

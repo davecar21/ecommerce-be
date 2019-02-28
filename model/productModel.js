@@ -7,7 +7,10 @@ let ProductMethod = {}
 
 let productSchema = new mongoose.Schema({
     _id: Schema.Types.ObjectId,
-    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
     productName: {
         type: String,
         required: true
@@ -30,12 +33,14 @@ let productSchema = new mongoose.Schema({
         enum: ['available', 'outOfStock', 'notAvailable'],
         default: 'available'
     }
+}, {
+    timestamps: true
 });
 
 let Product = mongoose.model('Product', productSchema);
 
 ProductMethod.getProduct = async () => {
-    const result = await Product.find().populate('userId');
+    const result = await Product.find();
     return result;
 }
 

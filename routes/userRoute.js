@@ -64,7 +64,7 @@ router.put('/', authAdmin, async (req, res) => {
     } catch (error) {
         return res.status(400).send({
             response: 'FAILED',
-            message: error
+            message: error.message
         });
     }
 });
