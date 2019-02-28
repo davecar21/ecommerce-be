@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
     } catch (error) {
         return res.status(400).send({
             response: 'FAILED',
-            message: error
+            message: error.message
         });
     }
 });
@@ -25,7 +25,7 @@ router.get('/:id', async (req, res) => {
     } catch (error) {
         return res.status(400).send({
             response: 'FAILED',
-            message: error
+            message: error.message
         });
     }
 });
@@ -64,7 +64,7 @@ router.put('/', authAdmin, async (req, res) => {
     } catch (error) {
         return res.status(400).send({
             response: 'FAILED',
-            message: error.message
+            message: error.message.message
         });
     }
 });
